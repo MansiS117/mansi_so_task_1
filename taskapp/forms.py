@@ -26,6 +26,17 @@ class RegistrationForm(forms.ModelForm):
         ] = "Enter Last Name"
         self.fields["email"].widget.attrs["placeholder"] = "Enter Email"
 
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        # Check if passwords match
+        if password != confirm_password:
+            raise forms.ValidationError("Passwords do not match.")
+
+        return cleaned_data
+
 
 class TaskForm(forms.ModelForm):
     assigned_to = forms.ModelChoiceField(

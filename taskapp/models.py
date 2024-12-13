@@ -1,20 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
+from model_utils.models import TimeStampedModel
 
 from .managers import CustomManager
 
 
 # Create your models here.
-class TimeStampModel(models.Model):
-    created = models.DateTimeField(default=timezone.now, editable=False)
-    updated = models.DateTimeField(default=timezone.now, editable=False)
-
-    class Meta:
-        abstract = True
-
-
-class User(AbstractUser, TimeStampModel):
+class User(AbstractUser, TimeStampedModel):
     username = None
     email = models.EmailField(unique=True)
 
@@ -40,7 +32,7 @@ STATUS_CHOICES = [
 ]
 
 
-class Task(TimeStampModel):
+class Task(TimeStampedModel):
     title = models.CharField(max_length=50)
     description = models.TextField(max_length=100)
     due_date = models.DateField()
@@ -64,7 +56,7 @@ class Task(TimeStampModel):
         return self.title
 
 
-class Comment(TimeStampModel):
+class Comment(TimeStampedModel):
     content = models.TextField()
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, related_name="comments"

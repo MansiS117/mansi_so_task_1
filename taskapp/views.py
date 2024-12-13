@@ -24,19 +24,12 @@ class RegistrationView(View):
             user = form.save(commit=False)
             # fetches password and confirm_password from cleaned_data dictionary
             password = form.cleaned_data["password"]
-            confirm_password = form.cleaned_data["confirm_password"]
-
-            # checks if password and confirm_password matches or not
-            if password == confirm_password:
-                # hashes the password and then store to the database
-                user.set_password(password)
-                user.save()
-
-                messages.success(request, "Registration Successful")
-                return redirect("home")
-
-            messages.error(request, "Password do not match")
-            return render(request, self.template_name, {"form": form})
+            user.set_password(password)
+            user.save()
+            messages.success(request, "Registration Successful")
+            return redirect("home")
+        messages.error(request, "Registration Failed")
+        return render(request, self.template_name, {"form": form})
 
 
 class LoginView(View):
@@ -198,11 +191,7 @@ class TaskDetailView(View):
         task = Task.objects.get(id=task_id)
         comments = Comment.objects.filter(task=task)
         form = CommentForm()
-        context = {
-            "task": task,
-            "comments": comments,
-            "form": form,
-        }
+        context = {"task": task, "comments": comments, "form": form}
         return render(request, self.template_name, context)
 
     def post(self, request, task_id):
@@ -216,9 +205,5 @@ class TaskDetailView(View):
             content.save()
             return redirect("home")
         comments = Comment.objects.filter(task=task)
-        context = {
-            "task": task,
-            "comments": comments,
-            "form": form,
-        }
+        context = {"task": task, "comments": comments, "form": form}
         return render(request, self.template_name, context)
