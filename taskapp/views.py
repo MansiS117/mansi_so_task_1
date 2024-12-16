@@ -1,5 +1,9 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.views import View
 
@@ -54,7 +58,9 @@ class LoginView(View):
         return render(request, self.template_name)
 
 
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     def get(self, request):
         logout(request)
         messages.success(request, "You are logged out")
@@ -73,8 +79,9 @@ class TaskListView(View):
         return render(request, self.template_name)
 
 
-class TaskCreateView(View):
+class TaskCreateView(LoginRequiredMixin, View):
     template_name = "create_task.html"
+    login_url = "/login/"
 
     def get(self, request):
         form = TaskForm()
@@ -102,14 +109,20 @@ class TaskCreateView(View):
                 priority=priority,
             )
             task.save()
+            subject = "New Task Assigned"
+            message = f"""Task: {title}, Description: {description}, Assigned By: {assigned_by}, Priority: {priority}, Due Date: {due_date}, """
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [assigned_to.email]
+            send_mail(subject, message, email_from, recipient_list)
             messages.success(request, "Task created sucessfully")
             return redirect("home")
         messages.error(request, "Try again")
         return render(request, self.template_name, {"form": form})
 
 
-class TaskEditView(View):
+class TaskEditView(LoginRequiredMixin, View):
     template_name = "create_task.html"
+    login_url = "/login/"
 
     def get(self, request, task_id):
         task = Task.objects.get(id=task_id)
@@ -126,8 +139,9 @@ class TaskEditView(View):
         return render(request, self.template_name, {"form": form})
 
 
-class TaskDeleteView(View):
+class TaskDeleteView(LoginRequiredMixin, View):
     template_name = "index.html"
+    login_url = "/login/"
 
     def post(self, request, task_id):
         task = Task.objects.get(id=task_id)
@@ -148,7 +162,7 @@ class MyTaskView(View):
             context = {"tasks": tasks}
             return render(request, self.template_name, context)
         messages.error(request, "You need to log in ")
-        return render(request, self.template_name)
+        return redirect("login")
 
 
 class UpdateMyTaskView(View):
@@ -159,7 +173,10 @@ class UpdateMyTaskView(View):
             task = Task.objects.get(id=task_id)
             if task:
                 form = MyTaskForm(instance=task)
-                return render(request, self.template_name, {"form": form})
+                title = task.title
+                return render(
+                    request, self.template_name, {"form": form, "title": title}
+                )
             messages.error(request, "Task not found")
             return redirect("home")
         messages.error(request, "You need to login")
@@ -177,15 +194,21 @@ class UpdateMyTaskView(View):
                     else:
                         task.complete = False
                     task.save()
-                return redirect("my_task")
+                    subject = "Task Status Update"
+                    message = f"The task {task} is {task.status}"
+                    email_from = settings.EMAIL_HOST_USER
+                    recipient_list = [task.assigned_by.email]
+                    send_mail(subject, message, email_from, recipient_list)
+                    return redirect("my_task")
             messages.error(request, "Task not found")
 
         messages.error(request, "You need to login")
         return redirect("home")
 
 
-class TaskDetailView(View):
+class TaskDetailView(LoginRequiredMixin, View):
     template_name = "task_detail.html"
+    login_url = "/login/"
 
     def get(self, request, task_id):
         task = Task.objects.get(id=task_id)
@@ -207,3 +230,38 @@ class TaskDetailView(View):
         comments = Comment.objects.filter(task=task)
         context = {"task": task, "comments": comments, "form": form}
         return render(request, self.template_name, context)
+
+
+class SearchView(LoginRequiredMixin, View):
+    template_name = "all_task.html"
+    login_url = "/login/"
+
+    def get(self, request):
+        keyword = request.GET.get("keyword", "")
+
+        if keyword:
+            task_by_status = Task.objects.filter(Q(status__icontains=keyword))
+            if task_by_status.exists():
+                tasks = task_by_status
+            else:
+                task_by_assignee = Task.objects.filter(
+                    assigned_by__first_name__icontains=keyword
+                )
+
+                if task_by_assignee.exists():
+                    tasks = task_by_assignee
+
+                else:
+                    tasks = Task.objects.filter(due_date__icontains=keyword)
+
+        context = {"tasks": tasks, "keyword": keyword}
+        return render(request, self.template_name, context)
+
+
+class AllTaskView(LoginRequiredMixin, View):
+    login_url = "/login/"
+    template_name = "all_task.html"
+
+    def get(self, request):
+        tasks = Task.objects.all()
+        return render(request, self.template_name, {"tasks": tasks})

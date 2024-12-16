@@ -21,15 +21,13 @@ class RegistrationForm(forms.ModelForm):
         self.fields["first_name"].widget.attrs[
             "placeholder"
         ] = "Enter First Name"  # applying the text in the placeholder
-        self.fields["last_name"].widget.attrs[
-            "placeholder"
-        ] = "Enter Last Name"
+        self.fields["last_name"].widget.attrs["placeholder"] = "Enter Last Name"
         self.fields["email"].widget.attrs["placeholder"] = "Enter Email"
 
     def clean(self):
         cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
 
         # Check if passwords match
         if password != confirm_password:
@@ -40,28 +38,18 @@ class RegistrationForm(forms.ModelForm):
 
 class TaskForm(forms.ModelForm):
     assigned_to = forms.ModelChoiceField(
-        queryset=User.objects.all(),
-        empty_label="Select who to assign the task",
+        queryset=User.objects.all(), empty_label="Select who to assign the task"
     )
 
     class Meta:
         model = Task
-        fields = (
-            "title",
-            "description",
-            "due_date",
-            "assigned_to",
-            "priority",
-        )
+        fields = ("title", "description", "due_date", "assigned_to", "priority")
 
 
 class MyTaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = (
-            "title",
-            "status",
-        )
+        fields = ("status",)
 
 
 class CommentForm(forms.ModelForm):
