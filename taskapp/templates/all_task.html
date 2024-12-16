@@ -3,19 +3,6 @@
 {% block title %}Task Management System{% endblock %}
 
 {% block content %}
-{% if not user.is_authenticated %}
-
- <div class="container">
-    <h1>Task Management System</h1>
-    <p class="message">Welcome to the Task Management System.</p>
-    <p class="message">You can organize your tasks, set deadlines, and keep track of your work.</p>
-
-    <div class="cta">
-        <p>If you don't have an account, please <a href="{% url 'register'%}">Sign Up</a>.</p>
-        <p>Already have an account? <a href="{% url 'login'%}">Login here</a>.</p>
-    </div>
-</div>
-{% else %}
 
 <section class="vh-100 gradient-custom-2">
   <div class="container py-5 h-100">
@@ -38,7 +25,7 @@
                   <th>Due Date</th>
                   <th>Assigned To</th>
                   <th>Status</th>
-
+                  <th>Assigned By</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -59,15 +46,14 @@
                   <td class="align-middle" style="color: black;">
                     <span>{{ task.status.capitalize }}</span>
                   </td>
+                  <td class="align-middle" style="color: black;">
+                    <span>{{ task.assigned_by }}</span>
+                  </td>
 
                   <td colspan="5" class="align-middle" style="display: flex; justify-content: space-between; align-items: flex-end;">
 
-                    <a href="{% url 'edit_task' task.id %}"><button class = "btn" style="background-color: orange; color: white;">Edit</button></a>
-                   <form action="{% url 'delete_task' task.id %}" method="post">
-                      {% csrf_token %}
-                      <button class = "btn" style="background-color: red; color: white;">Delete</button>
-                    </form>
-                    <a href="{% url 'task_detail' task.id %}"><button class = "btn" style="background-color: blue; color: white;">View</button></a>
+
+                    <a href="{% url 'task_detail' task.id %}"><button class = "btn"style="background-color: blue; color: white;">View</button></a>
 
                   </td>
                 </tr>
@@ -83,5 +69,4 @@
     </div>
   </div>
 </section>
-{% endif %}
 {% endblock %}

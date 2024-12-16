@@ -10,6 +10,8 @@
     <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="{% static 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css'%}" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
   </head>
   <body>
@@ -22,38 +24,33 @@
             Welcome Guest
         {% endif %}
       </div>
-      <div class="col-lg  col-md-6 col-sm-12 col">
-        <form action="#" class="search" method = "GET">
-            <div class="input-group w-100">
-                <input type="text" class="form-control" style="width:60%;" placeholder="Search" name="keyword">
+      {% if user.is_authenticated %}
+      <div class="col-lg-3 col-md-4 col-sm-6">
+        <form action="{% url 'search' %}" class="search " method = "GET">
+            <div class="input-group w-60">
+                <input type="text" class="form-control form-control-sm  " style="width:20%; width: 150px !important;"  placeholder="Search" name="keyword">
 
                 <div class="input-group-append">
-                  <button class="btn btn-warning" type="submit">
+                  <button class="btn btn-danger" type="submit">
                     <i class="fa fa-search"></i>
                   </button>
                 </div>
             </div>
         </form> <!-- search-wrap .end// -->
     </div> <!-- col.// -->
+    {% endif %}
       <div class="auth-buttons">
         {% if user.is_authenticated %}
-          <!-- <button onclick="window.location.href='#'">Assign Task</button> -->
-          <!-- <button onclick="window.location.href='{% url 'logout' %}'">Logout</button> -->
           <a href="{% url 'create_task'%}" style="text-decoration: none;"><button>Assign New Task</button></a>
           <a href="{% url 'my_task' %}" style="text-decoration: none;"><button>My Task</button></a>
+          <a href="{% url 'all_task' %}" style="text-decoration: none;"><button>All Tasks</button></a>
           <a href="{% url 'home' %}" style="text-decoration: none;"><button>Home</button></a>
-
-
-
           <a href="{% url 'logout'%}" style="text-decoration: none;"> <button>Logout</button></a>
         {% else %}
-          <!-- <button onclick="window.location.href='{% url 'register'%}'">Signup</button>
-          <button onclick="window.location.href='#'">Login</button> -->
           <a href="{% url 'register' %}" style="text-decoration: none;"><button>Register</button></a>
           <a href="{% url 'login'%}" style="text-decoration: none;"><button>Login</button></a>
         {% endif %}
       </div>
-    </header>
 
     <!-- Main content section -->
     <div class="container">{% block content %} {% endblock %}</div>
