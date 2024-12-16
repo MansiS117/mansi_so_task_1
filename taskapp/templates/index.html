@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Task Management System{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+
+ <div class="container">
+    <h1>Task Management System</h1>
+    <p class="message">Welcome to the Task Management System.</p>
+    <p class="message">You can organize your tasks, set deadlines, and keep track of your work.</p>
+
+    <div class="cta">
+        <p>If you don't have an account, please <a href="{% url 'register'%}">Sign Up</a>.</p>
+        <p>Already have an account? <a href="{% url 'login'%}">Login here</a>.</p>
+    </div>
+</div>
+{% else %}
+
+<section class="vh-100 gradient-custom-2">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-md-12 col-xl-10">
+
+        <div class="card mask-custom">
+          <div class="card-body p-4 text-white">
+
+            <div class="text-center pt-3 pb-2">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-todo-list/check1.webp"
+                alt="Check" width="60">
+              <h2 class="my-4">Task List</h2>
+            </div>
+
+            <table class="table text-white mb-0">
+              <thead>
+                <tr>
+                  <th>Task Name</th>
+                  <th>Due Date</th>
+                  <th>Assigned To</th>
+                  <th>Status</th>
+
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for task in tasks %}
+                <tr class="fw-normal">
+                  <td class="align-middle" style="color: black;">
+                    <span>{{ task.title }}</span>
+                  </td>
+                  <td class="align-middle" style="color: black;">
+                    <span>{{ task.due_date }}</span>
+                  </td>
+                  <th>
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
+                      alt="avatar 1" style="width: 45px; height: auto;">
+                    <span class="ms-2" style="color: black;">{{ task.assigned_to }}</span>
+                  </th>
+                  <td class="align-middle" style="color: black;">
+                    <span>{{ task.status.capitalize }}</span>
+                  </td>
+
+                  <td colspan="5" class="align-middle" style="display: flex; justify-content: space-between; align-items: flex-end;">
+
+                    <a href="{% url 'edit_task' task.id %}"><button class = "btn" style="background-color: orange; color: white;">Edit</button></a>
+                   <form action="{% url 'delete_task' task.id %}" method="post">
+                      {% csrf_token %}
+                      <button class = "btn" style="background-color: red; color: white;">Delete</button>
+                    </form>
+                    <a href="{% url 'task_detail' task.id %}"><button class = "btn" style="background-color: blue; color: white;">View</button></a>
+
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

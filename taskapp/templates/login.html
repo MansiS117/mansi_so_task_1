@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content%}
+
+
+
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-conten padding-y" style="min-height:84vh">
+
+<!-- ============================ COMPONENT LOGIN   ================================= -->
+	<div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
+      <div class="card-body">
+      <h3 class="card-title mb-4">Sign in</h3>
+      <form action="{% url 'login' %}" method = "POST">
+		{% csrf_token %}
+          <div class="form-group">
+			<!-- {{ form.email }} -->
+			  <input type="email" name="email" placeholder="Email" class = "form-control">
+          </div> <!--form-group//-->
+          <div class="form-group">
+			<!-- {{ form.password }} -->
+			  <input type="password" name="password" placeholder="Password" class = "form-control">
+          </div> <!--form-group//-->
+
+
+          <div class="form-group">
+              <button type="submit" class="btn btn-warning btn-block"> Login  </button>
+          </div>
+		  {% if messages %}
+       <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %} <!-- form-group// -->
+      </form>
+      </div> <!-- card-body.// -->
+    </div> <!-- card .// -->
+
+     <p class="text-center mt-4">Don't have account? <a href="{% url 'register' %}" style="text-decoration: none;">Sign up</a></p>
+     <br><br>
+<!-- ============================ COMPONENT LOGIN  END.// ================================= -->
+
+
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
+
+
+
+
+</body>
+</html>
+
+{% endblock %}

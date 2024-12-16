@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+
+    <div class="container my-5">
+      <h1 class="text-center mb-4">{{ task.title }}</h1>
+
+      <!-- Task Details Section -->
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Task Description</h5>
+          <p class="card-text">{{ task.description }}</p><hr>
+
+          <h5 class="card-title">Assigned To</h5>
+          <p class="card-text">{{ task.assigned_to.first_name }} {{ task.assigned_to.last_name }}</p><hr>
+
+          <h5 class="card-title">Assigned By</h5>
+          <p class="card-text">{{ task.assigned_by.first_name }} {{ task.assigned_by.last_name }}</p><hr>
+
+          <h5 class="card-title">Status</h5>
+          <p class="card-text">{{ task.status }}</p><hr>
+
+          <h5 class="card-title">Priority</h5>
+          <p class="card-text">{{ task.priority }}</p><hr>
+
+          <h5 class="card-title">Due Date</h5>
+          <p class="card-text">{{ task.due_date }}</p>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comments mb-4">
+        <h5>Comments</h5>
+        <div class="list-group">
+          {% for text in comments %}
+            <div class="list-group-item">
+              <strong>{{ text.commented_by.first_name }} {{ text.commented_by.last_name }}</strong>
+              <small class="text-muted">({{ text.created|date:'F j, Y, g:i a' }})</small>
+              <p>{{ text.content }}</p>
+            </div>
+          {% empty %}
+            <p class="text-muted">No comments yet. Be the first to comment!</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Add a Comment -->
+      {% if user.is_authenticated %}
+        <form method="POST" class="mt-4">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="id_content" class="form-label">Your Comment</label>
+            <textarea name="content" id="id_content" class="form-control" rows="4" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+      {% else %}
+        <p class="text-muted">You must be logged in to add a comment.</p>
+      {% endif %}
+
+      <div class="cta mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back to Task List</a>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
