@@ -23,12 +23,22 @@
       <div class="col-md-12 col-xl-10">
 
         <div class="card mask-custom">
-          <div class="card-body p-4 text-white">
+          <div class="card-body p-4 text-black">
 
             <div class="text-center pt-3 pb-2">
               <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-todo-list/check1.webp"
                 alt="Check" width="60">
               <h2 class="my-4">Task List</h2>
+            </div>
+            <div>
+            {% if messages %}
+              <div class="messages">
+                {% for message in messages %}
+                  <div class="alert alert-danger ">
+                    {{ message }}
+                {% endfor %}
+              </div>
+            {% endif %}
             </div>
 
             <table class="table text-white mb-0">

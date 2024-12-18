@@ -121,12 +121,20 @@ class TaskEditView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def get(self, request, task_id):
-        task = Task.objects.get(id=task_id)
-        form = TaskForm(instance=task)
-        return render(request, self.template_name, {"form": form})
+        task = Task.objects.filter(id=task_id).first()
+        if task:
+            if task.assigned_by == request.user:
+                form = TaskForm(instance=task)
+                return render(request, self.template_name, {"form": form})
+            messages.error(request, "You dont have access to edit this task")
+            return redirect("home")
+        messages.error(request, "There is no such task")
+        return redirect("home")
+
+        # return HttpResponse("You dont have access to edit this task")
 
     def post(self, request, task_id):
-        task = Task.objects.get(id=task_id)
+        task = Task.objects.filter(id=task_id).first()
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
@@ -143,10 +151,13 @@ class TaskDeleteView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def post(self, request, task_id):
-        task = Task.objects.get(id=task_id)
+        task = Task.objects.filter(id=task_id).first()
         if task:
-            task.delete()
-            messages.success(request, "Task deleted successfully")
+            if task.assigned_by == request.user:
+                task.delete()
+                messages.success(request, "Task deleted successfully")
+            messages.error(request, "You dont have access to delete this task")
+            return redirect("home")
         else:
             messages.error(request, "item does not exist")
         return redirect("home")
@@ -198,11 +209,16 @@ class UpdateMyTaskView(LoginRequiredMixin, View):
     def get(self, request, task_id):
         task = Task.objects.filter(id=task_id).first()
         if task:
-            form = MyTaskForm(instance=task)
-            title = task.title
-            return render(
-                request, self.template_name, {"form": form, "title": title}
+            if task.assigned_to == request.user:
+                form = MyTaskForm(instance=task)
+                title = task.title
+                return render(
+                    request, self.template_name, {"form": form, "title": title}
+                )
+            messages.error(
+                request, "You are not authorized to update this task"
             )
+            return redirect("my_task")
         messages.error(request, "Task not found")
         return redirect("home")
 
@@ -238,7 +254,7 @@ class TaskDetailView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def get(self, request, task_id):
-        task = Task.objects.get(id=task_id)
+        task = Task.objects.filter(id=task_id).first()
         comments = Comment.objects.filter(task=task)
         form = CommentForm()
         context = {"task": task, "comments": comments, "form": form}
