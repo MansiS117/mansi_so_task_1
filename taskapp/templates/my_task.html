@@ -33,7 +33,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                    {% for task in tasks %}
+                    {% for task in completed_task %}
                   <tr class="fw-normal">
                     <th>
                       <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
@@ -61,6 +61,92 @@
                     </td>
 
                   </tr>
+
+                  {% endfor %}
+                  {% if current_task %}
+                  <tr class="fw-normal">
+                    <th>
+                      <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
+                        alt="avatar 1" style="width: 45px; height: auto;">
+                      <span class="ms-2" style="color: black;">{{ current_task.assigned_by }}</span>
+                    </th>
+                    <td class="align-middle" style="color: black;">
+                      <span>{{ current_task.title }}</span>
+                    </td>
+                    <td class="align-middle">
+                      <h6 class="mb-0"><span class="badge bg-danger">{{ current_task.priority }}</span></h6>
+                    </td>
+
+                    <td> <a href="{% url 'update_mytask' current_task.id %}"><button type="submit" class="btn" style="background-color: orange; color: white;">Update</button></a></td>
+                    <td class="align-middle" style="color: black;">
+                        {{ current_task.status }}
+                    </td>
+
+                    <td class="align-middle" style="color: black;">
+                        {{ current_task.assigned_at }}
+                    </td>
+                    <td class="align-middle">
+
+                      <a href="{% url 'task_detail' current_task.id %}"><button class="btn" style="background-color: blue; color: white;">View</button></a>
+                    </td>
+
+
+                  </tr>
+                  {% endif %}
+
+                  {% for task in incomplete_task %}
+                  <tr class="fw-normal">
+                    <th>
+                      <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
+                        alt="avatar 1" style="width: 45px; height: auto;">
+                      <span class="ms-2" style="color: black;">{{ task.assigned_by }}</span>
+                    </th>
+                    <td class="align-middle" style="color: black;">
+                      <span>{{ task.title }}</span>
+                    </td>
+                    <td class="align-middle">
+                      <h6 class="mb-0"><span class="badge bg-danger">{{ task.priority }}</span></h6>
+                    </td>
+
+                    <td> </td>
+                    <td class="align-middle" style="color: black;">
+
+                    </td>
+
+                    <td class="align-middle" style="color: black;">
+                        {{ task.assigned_at }}
+                    </td>
+                    <td class="align-middle">
+
+                      <a href="{% url 'task_detail' task.id %}"><button class="btn" style="background-color: blue; color: white;">View</button></a>
+                    </td>
+
+                  </tr>
+                  {% empty %}
+                  <tr class="fw-normal">
+                    <th>
+
+                      <span class="ms-2" style="color: black;"></span>
+                    </th>
+                    <td class="align-middle" style="color: black;">
+                      <span></span>
+                    </td>
+                    <td class="align-middle">
+                    </td>
+
+                    <td> </td>
+                    <td class="align-middle" style="color: black;">
+
+                    </td>
+
+                    <td class="align-middle" style="color: black;">
+                    </td>
+                    <td class="align-middle">
+
+                    </td>
+
+                  </tr>
+
 
                   {% endfor %}
                 </tbody>
