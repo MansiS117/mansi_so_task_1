@@ -160,8 +160,31 @@ class MyTaskView(LoginRequiredMixin, View):
     template_name = "my_task.html"
 
     def get(self, request):
-        tasks = Task.objects.filter(assigned_to=request.user)
-        context = {"tasks": tasks}
+        completed_task = (
+            Task.objects.filter(assigned_to=request.user)
+            .filter(complete=True)
+            .order_by("id")
+        )
+        current_task = Task.objects.filter(
+            Q(assigned_to=request.user) & Q(complete=False)
+        ).first()
+        if current_task:
+            incomplete_task = (
+                Task.objects.filter(
+                    Q(assigned_to=request.user) & Q(complete=False)
+                )
+                .exclude(id=current_task.id)
+                .order_by("id")
+            )
+        else:
+            incomplete_task = Task.objects.filter(
+                Q(assigned_to=request.user) & Q(complete=False)
+            ).order_by("id")
+        context = {
+            "completed_task": completed_task,
+            "incomplete_task": incomplete_task,
+            "current_task": current_task,
+        }
         return render(request, self.template_name, context)
 
 
@@ -173,17 +196,22 @@ class UpdateMyTaskView(LoginRequiredMixin, View):
     template_name = "update_mytask.html"
 
     def get(self, request, task_id):
-        task = Task.objects.get(id=task_id)
+        task = Task.objects.filter(id=task_id).first()
         if task:
             form = MyTaskForm(instance=task)
             title = task.title
-            return render(request, self.template_name, {"form": form, "title": title})
+            return render(
+                request, self.template_name, {"form": form, "title": title}
+            )
         messages.error(request, "Task not found")
         return redirect("home")
 
     def post(self, request, task_id):
-        task = Task.objects.get(id=task_id)
-        if task:
+        task = Task.objects.filter(id=task_id).first()
+        previous_task = Task.objects.filter(
+            Q(id__lt=task.id) & Q(assigned_to=request.user)
+        ).last()
+        if not previous_task or previous_task.complete:
             form = MyTaskForm(request.POST, instance=task)
             if form.is_valid():
                 task.status = request.POST.get("status")
@@ -194,7 +222,12 @@ class UpdateMyTaskView(LoginRequiredMixin, View):
                 task.save()
                 task_update_email(task)
                 return redirect("my_task")
-        messages.error(request, "Task not found")
+
+        messages.error(
+            request,
+            f"You cannot update this task until the previous task '{previous_task.title}' is completed",
+        )
+        return render(request, self.template_name)
 
 
 class TaskDetailView(LoginRequiredMixin, View):
